@@ -1,11 +1,11 @@
 import cv2
-import numpy as np 
+import numpy as np
 import sys,skvideo.io
 
 Maxdist = 5
 # Sample image we took
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('hello1.mp4')
 
 
 while(True):
@@ -19,12 +19,12 @@ while(True):
      if(ret==True):
        hsv = cv2.cvtColor(cap1,cv2.COLOR_BGR2HSV)
 
-#Defining Ranges of blue color in hsv
+#Defining Ranges of skin color in hsv
        lower_blue = np.array([0,0,0])
        upper_blue = np.array([180,255,100])
 
 #Thresholding only to obatin blue cvtColor
-       mask=cv2.inRange(hsv,(110,50,50),(130,255,255))
+       mask=cv2.inRange(hsv,(0,10,60),(20,150,255))
        cv2.imwrite("Masked.jpg",mask)
        image,contours,hierarchy = cv2.findContours(mask,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
        contours1 = np.copy(contours)
