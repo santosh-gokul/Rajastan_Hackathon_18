@@ -5,7 +5,7 @@ import sys,skvideo.io
 Maxdist = 5
 # Sample image we took
 
-cap = cv2.VideoCapture('hello1.mp4')
+cap = cv2.VideoCapture(0)
 
 
 while(True):
@@ -23,9 +23,20 @@ while(True):
        lower_blue = np.array([0,0,0])
        upper_blue = np.array([180,255,100])
 
-#Thresholding only to obatin blue cvtColor
-       mask=cv2.inRange(hsv,(0,10,60),(20,150,255))
+#Thresholding only to obatin skin cvtColor
+       mask=cv2.inRange(hsv,(0,20,70),(20,255,255))
        cv2.imwrite("Masked.jpg",mask)
+
+       kernel = np.ones((3,3),np.uint8)
+       mask = cv2.dilate(mask,kernel,iterations = 4)
+       #mask = cv2.GaussianBlur(mask,(5,5),100)
+       """
+
+          It can only be applied to black and white images, i have used dilate
+          function which kind of expands the image, so henceforth more area for consideration
+        """
+
+
        image,contours,hierarchy = cv2.findContours(mask,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
        contours1 = np.copy(contours)
 
