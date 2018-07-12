@@ -29,7 +29,9 @@ https://www.youtube.com/redirect?v=v-XcmsYlzjA&event=video_description&q=https%3
 I have used concept of Dilation and Blurring from this code.
 I have used their HSV value of the skin colour.
 
-I will update these section.
+https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0
+
+All the concept i used, are from this one.
 
 
 
