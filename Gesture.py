@@ -1,17 +1,45 @@
 import cv2
 import numpy as np
+import math
 import sys,skvideo.io
 
-Maxdist = 5
+def partition(hull,h_contour):
+
+    hull_partitioned = []
+    i = 0
+    print(hull.shape[0])
+
+    while i < hull.shape[0]:
+
+
+        hull_x_net = h_contour[hull[i][0]][0][0]
+        hull_y_net = h_contour[hull[i][0]][0][1]
+        #start_x_net = h_contour[s][0][
+        #start_y_net = h_contour[s][0][1]
+        #end_x_net = h_contour[e][0][0]
+        #end_y_net = h_contour[e][0][1]
+        j = i+1
+        while j < hull.shape[0]:
+            dist = math.sqrt((hull_x_net-h_contour[hull[j][0]][0][0])**2 + (hull_y_net-h_contour[hull[j][0]][0][1])**2)
+            if(dist<=50):
+                hull = np.delete(hull,j,0)
+                j-=1
+            j+=1
+
+        i+=1
+
+        #defects_partitioned.append([[[int(start_x_net),int(start_y_net)],[int(end_x_net),int(end_y_net)],[int(far_x_net),int(far_y_net)],d]])
+
+    #defects_partitioned = np.asarray(defects_partitioned)
+    return(hull)
 # Sample image we took
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('hello2.webm')
+f = open('Contour.txt','w')
 
 
 while(True):
      ret,cap1 = cap.read()
-     print(ret)
-     print(cap1)
      cv2.imshow("frame",cap1)
      key = cv2.waitKey(1) & 0xFF
      if key == ord("q"):
@@ -25,7 +53,7 @@ while(True):
 
 #Thresholding only to obatin skin cvtColor
        mask=cv2.inRange(hsv,(0,20,70),(20,255,255))
-       cv2.imwrite("Masked.jpg",mask)
+       cv2.imshow("Black And White",mask)
 
        kernel = np.ones((3,3),np.uint8)
        mask = cv2.dilate(mask,kernel,iterations = 4)
@@ -52,23 +80,37 @@ while(True):
        h_contour = contours1[largest_contour]
 
 # Please draw the lines in color RGB space
-       cap_temp = cap1
        cv2.drawContours(cap1,contours,largest_contour,(0,255,0),2)
        cap0 = cv2.resize(cap1,(960,540))
-       cv2.imshow('contour of cap',cap0)
-       cv2.imwrite("Final.jpg",cap0)
-
-       cap1 = cap_temp
-       cap_temp = cv2.resize(cap_temp,(960,540))
-       cv2.imshow('mask1',cap_temp)
-       cv2.imwrite("Required.jpg",cap_temp)
+       cv2.imshow('Hand Contours',cap0)
 
        hull = cv2.convexHull(h_contour,returnPoints =False)
-       hull_points =[]
+       hull = partition(hull,h_contour)
+       hull_points = []
+
+       """ drawing circles of hull points"""
+
+       for i in hull:
+           cv2.circle(cap1,tuple(h_contour[i[0]][0]),20,(255,0,0),1)
+
+
        defects = cv2.convexityDefects(h_contour,hull)
 
-       print(type(h_contour))
-       print(h_contour)
+
+       """
+       Testing sake.... for approximately measuring the distance between two points.
+
+       h_contours[1][0] gives the corrdinates in the figure. the figure cannot be
+       resized.
+
+       f.write(str(h_contour[1]))
+       f.write(str(h_contour[2]))
+       f.write("\n")
+       cv2.circle(cap1,tuple(h_contour[1][0]),10,(0,0,255),-1)
+       cv2.circle(cap1,tuple(h_contour[2][0]),10,(0,0,255),-1)
+       cv2.imshow("With selection points",cap1)
+       """
+
        for i in range(defects.shape[0]) :
            s,e,f,d = defects[i,0]
            start = tuple(h_contour[s][0])
@@ -76,12 +118,13 @@ while(True):
            end = tuple(h_contour[e][0])
            far = tuple(h_contour[f][0])
            cv2.line(cap1,start,end,(0,255,0),5)
-           cv2.circle(cap1,far,10,(0,0,255),-1)
-       cv2.imshow('finally.jpg',cap1)
+           cv2.circle(cap1,far,10,(0,0,255),1)
+       cv2.imshow('finally',cap1)
 
 
 
      else:
         break
+
 cv2.destroyAllWindows()
 cap.release()
