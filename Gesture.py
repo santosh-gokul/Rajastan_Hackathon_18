@@ -32,6 +32,32 @@ def partition(hull,h_contour):
 
     #defects_partitioned = np.asarray(defects_partitioned)
     return(hull)
+
+def find_number(defects,h_contour):
+
+    count = 0
+
+    for i in range(0,defects.shape[0]):
+        s,e,f,d = defects[i,0]
+        if(i==defects.shape[0]-1):
+            s1,e1,f1,d1 = defects[0,0]
+        else:
+            s1,e1,f1,d1 = defects[i+1,0]
+
+        slope1 = (h_contour[e][0][1]-h_contour[f][0][1])/(h_contour[e][0][0]-h_contour[f][0][0])
+        slope1 = math.degrees(math.atan(slope1))
+
+        slope2 = (h_contour[e][0][1]-h_contour[f1][0][1])/(h_contour[e][0][0]-h_contour[f1][0][0])
+        slope2 = math.degrees(math.atan(slope2))
+
+        slope_net = abs(slope1-slope2)
+
+        if(slope_net<=35):
+            count+=1
+
+    return(count)
+
+
 # Sample image we took
 
 cap = cv2.VideoCapture('hello2.webm')
@@ -80,9 +106,9 @@ while(True):
        h_contour = contours1[largest_contour]
 
 # Please draw the lines in color RGB space
-       cv2.drawContours(cap1,contours,largest_contour,(0,255,0),2)
-       cap0 = cv2.resize(cap1,(960,540))
-       cv2.imshow('Hand Contours',cap0)
+       #cv2.drawContours(cap1,contours,largest_contour,(0,255,0),2)
+       #cap0 = cv2.resize(cap1,(960,540))
+       #cv2.imshow('Hand Contours',cap0)
 
        hull = cv2.convexHull(h_contour,returnPoints =False)
        hull = partition(hull,h_contour)
@@ -117,10 +143,15 @@ while(True):
            hull_points.append(start)
            end = tuple(h_contour[e][0])
            far = tuple(h_contour[f][0])
-           cv2.line(cap1,start,end,(0,255,0),5)
+           cv2.line(cap1,start,far,(0,255,0),5)
+           cv2.line(cap1,far,end,(0,255,0),5)
            cv2.circle(cap1,far,10,(0,0,255),1)
+
        cv2.imshow('finally',cap1)
 
+       number = find_number(defects,h_contour)
+
+       print("The Number is %d"%(number))
 
 
      else:
