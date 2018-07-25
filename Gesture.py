@@ -44,16 +44,19 @@ def find_number(defects,h_contour):
         else:
             s1,e1,f1,d1 = defects[i+1,0]
 
-        slope1 = (h_contour[e][0][1]-h_contour[f][0][1])/(h_contour[e][0][0]-h_contour[f][0][0])
-        slope1 = math.degrees(math.atan(slope1))
+        dist_defects = ((h_contour[f1][0][0]-h_contour[f][0][0])**2 + (h_contour[f1][0][1]-h_contour[f][0][1])**2)
 
-        slope2 = (h_contour[e][0][1]-h_contour[f1][0][1])/(h_contour[e][0][0]-h_contour[f1][0][0])
-        slope2 = math.degrees(math.atan(slope2))
+        a_2 = ((h_contour[e][0][0]-h_contour[f][0][0])**2 + (h_contour[e][0][1]-h_contour[f][0][1])**2)
 
-        slope_net = abs(slope1-slope2)
+        b_2 = ((h_contour[e][0][0]-h_contour[f1][0][0])**2 +(h_contour[e][0][1]-h_contour[f1][0][1])**2)
 
-        if(slope_net<=35):
+        slope_net = (a_2+b_2-dist_defects)/(2*math.sqrt(a_2)*math.sqrt(b_2))
+
+        slope_net = math.degrees(math.acos(slope_net))
+
+        if(slope_net<=60):
             count+=1
+            #print("The angle is:%d and the index is%d"%(slope_net,i))
 
     return(count)
 
@@ -136,7 +139,6 @@ while(True):
        cv2.circle(cap1,tuple(h_contour[2][0]),10,(0,0,255),-1)
        cv2.imshow("With selection points",cap1)
        """
-
        for i in range(defects.shape[0]) :
            s,e,f,d = defects[i,0]
            start = tuple(h_contour[s][0])
